@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminModel;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreAdminModelRequest;
 use App\Http\Requests\UpdateAdminModelRequest;
-use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -24,6 +24,7 @@ class AdminController extends Controller
     public function create()
     {
         //
+        $admin = AdminModel::create();
     }
 
     /**
@@ -32,10 +33,8 @@ class AdminController extends Controller
     public function store(StoreAdminModelRequest $request)
     {
         //
-        $hashPassword = Hash::make($request->input
-        ('password'));
         //validate from requests
-         AdminModel::create(request()->all());
+         AdminModel::create($request->all());
 
          //return a valid json response
         return response()->json('Successfully created Admin', 200);
@@ -46,8 +45,8 @@ class AdminController extends Controller
      */
     public function show(AdminModel $adminModel)
     {
-        //
-
+        //look the admin account based on the current admin's id
+          $admin = $adminModel->where('id', $adminModel->id)->first();
     }
 
     /**
@@ -56,6 +55,9 @@ class AdminController extends Controller
     public function edit(AdminModel $adminModel)
     {
         //
+        $admin = $adminModel->where('id', $adminModel->id)->first();
+
+
     }
 
     /**

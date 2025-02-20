@@ -14,6 +14,7 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Models\AdminModel;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,15 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Fortify::authenticateUsing(function (Request $request) {
+            if ($request->is('admin/*') || $request->routeIs('admin.login')) {
+                $admin = AdminModel::where('email', $request->email)->first();
+                $password = $request->password;
+
+                if ($admin && Hash::check($password, $admin->password)) {
+                    return $admin;
+                }
+            }
+
             $user = User::where('email', $request->email)->first();
 
             if ($user &&
@@ -45,6 +55,8 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::createUsersUsing(\App\Actions\Fortify\CreateNewAdmin::class); // Custom Admin Registration
+
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);

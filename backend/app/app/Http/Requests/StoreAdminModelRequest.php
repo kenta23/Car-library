@@ -11,7 +11,7 @@ class StoreAdminModelRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,6 +25,7 @@ class StoreAdminModelRequest extends FormRequest
             //
             "name" => ['required', 'string', 'max:255'],
             "email" => ['required', 'string', 'email', 'max:255', 'unique:admin'],
+            "username" => ['required', 'string', 'max:50', 'unique:admin'],
             'password'=> ['required', 'string','min:8'],
         ];
     }
