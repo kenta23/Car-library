@@ -8,7 +8,7 @@ export default function page() {
            Customers
        </h1>
 
-       <div>
+       <div className='w-full h-auto mt-8'>
            <CustomersTable />
        </div>
     </div>

@@ -4,6 +4,9 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { LogOut } from 'lucide-react';
+
+
+
 export default function AdminSidebar() {
     const pathname = usePathname();
     
@@ -16,7 +19,7 @@ export default function AdminSidebar() {
                <Link className={pathname === '/admin/inventory' ? 'text-primaryColor' : ''} href='/admin/inventory'>
                    <p>Inventory</p>
                </Link>
-               <Link className={pathname === '/admin/customers' ? 'text-primaryColor' : ''} href='/admin/dashboard'>
+               <Link className={pathname === '/admin/customers' ? 'text-primaryColor' : ''} href='/admin/customers'>
                    <p>Customers</p>
                </Link>
                <Link className={pathname === '/admin/analytics' ? 'text-primaryColor' : ''} href='/admin/dashboard'>
@@ -26,8 +29,10 @@ export default function AdminSidebar() {
 
 
         <div className='flex flex-row gap- items-center absolute bottom-3 w-full px-4 py-4 text-white'>
-            <LogOut color='#ffff' size={20}/>
-            <p className=''>Sign out</p>
+             <button type='button' className='flex flex-row items-center gap-2'>
+               <LogOut color='#ffff' size={20}/>
+               <p className=''>Sign out</p>
+             </button>
         </div>
     </div>
   )

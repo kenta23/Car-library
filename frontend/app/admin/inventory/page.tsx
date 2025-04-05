@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import React from 'react'
 import ItemsTable from './items-table'
 import CarRentingTypes from './car-renting-types'
+import BookingCalendar from './booking-calendar'
 
 export const metadata: Metadata = { 
     title: "Car library Admin",
@@ -23,6 +24,9 @@ export default function page() {
 
          {/**Car renting types */}
           <CarRentingTypes />
+
+         {/**booking calendar */}
+         <BookingCalendar />
     </div>
   )
 }
