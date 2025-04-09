@@ -3,7 +3,6 @@
 import { handleLogin } from '@/app/actions/admin';
 import React, { useActionState } from 'react'
 
-
 export default function LoginForm() {
     const [formState, formAction] = useActionState(handleLogin, {
         success: false,
@@ -20,7 +19,7 @@ export default function LoginForm() {
             name="username"
             className="h-8 p-2 bg-transparent border border-white rounded-lg outline-none w-72"
           />
-         
+         {formState.fields?.username && <p>{formState.fields.username}</p>}
         </div>
 
         <div className="flex flex-col items-start gap-2">
@@ -31,6 +30,7 @@ export default function LoginForm() {
             name="password"
             className="h-8 p-2 bg-transparent border border-white rounded-lg outline-none w-72"
           />
+            {formState.fields?.username && <p>{formState.fields.username}</p>}
         </div>
 
         <div>
@@ -41,6 +41,7 @@ export default function LoginForm() {
             <span>Login</span>
           </button>
         </div>
+        {formState.errors?.general && <p>{formState.errors.general}</p>}
       </form>
     </>
   );

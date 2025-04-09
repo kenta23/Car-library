@@ -13,8 +13,6 @@ Route::resource('/add-car', CarController::class);
 
 
 //admin routes
-
-
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware(['guest'])

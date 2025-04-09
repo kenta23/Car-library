@@ -6,6 +6,22 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+progress {
+  width: 300px;
+  height: 25px;
+}
+
+progress::-webkit-progress-bar {
+  background-color: 'transparent';
+  border-radius: 10px;
+
+}
+
+progress::-webkit-progress-value {
+  background-color: #ABC04E;
+  border-radius: 10px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

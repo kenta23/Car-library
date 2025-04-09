@@ -4,7 +4,8 @@ import React, { useMemo } from 'react'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { CellContext, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
 import { Settings2, Trash2 } from 'lucide-react';
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer, Label, PolarAngleAxis } from 'recharts';
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
+import NewCustomers from './new-customers';
 
 
 type customersType = { 
@@ -139,10 +140,10 @@ export default function CustomersTable() {
     });
   return (
     <div>
-      <div className="overflow-x-hidden mt-3 space-y-3">
+      <div className="mt-3 space-y-3 overflow-x-hidden">
         {/** search and show entries */}
         <div className="flex justify-between w-full gap-4">
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex flex-row items-center gap-2">
             <span>Show</span>{" "}
             <select className="bg-[#B08C48] text-white px-2 py-1 rounded-lg font-medium">
               <option value="10">10</option>
@@ -171,7 +172,7 @@ export default function CustomersTable() {
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider"
+                    className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -194,7 +195,7 @@ export default function CustomersTable() {
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-6 py-4 whitespace-nowrap text-xs text-white"
+                    className="px-6 py-4 text-xs text-white whitespace-nowrap"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -205,7 +206,7 @@ export default function CustomersTable() {
         </table>
 
         {/** pagination */}
-        <div className="w-full h-auto min-h-12 mt-6">
+        <div className="w-full h-auto mx-auto mt-12 min-h-12">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -235,12 +236,9 @@ export default function CustomersTable() {
         {/** New Customers */}
         <div className="w-full h-auto mt-6 min-h-12">
           {/** new Subscribers card */}
-          <div className="px-3 py-4 h-auto w-96 bg-gray-700/25 rounded-lg">
+          <div className="h-auto px-3 py-4 rounded-lg w-96 bg-gray-700/25">
             <h1>New Subscribers</h1>
-            <ResponsiveContainer
-              width="100%"
-              height={200}
-            >
+            <ResponsiveContainer width="100%" height={200}>
               <RadialBarChart
                 cx="50%"
                 cy="50%"
@@ -248,17 +246,30 @@ export default function CustomersTable() {
                 outerRadius="90%"
                 barSize={25}
                 data={data}
-            
               >
-                <RadialBar label={{ position: 'centerBottom', fill: '#fff' }} className='' cornerRadius={10} background dataKey="uv">
-                </RadialBar>
+                <RadialBar
+                  label={{ position: "centerBottom", fill: "#fff" }}
+                  cornerRadius={10}
+                  background
+                  dataKey="uv" 
+                  values='uv'
+                  />
+
               </RadialBarChart>
             </ResponsiveContainer>
 
             <div>
-              <p className='text-center text-white text-sm font-medium'>+ 20% vs last month</p>
+              <p className="text-sm font-medium text-center text-white">
+                + 20% vs last month
+              </p>
             </div>
           </div>
+        </div>
+
+
+        {/** new customers and blocked customers */}
+        <div className='flex flex-row items-center justify-between w-full h-auto gap-6 mt-10'>
+              <NewCustomers />
         </div>
       </div>
     </div>

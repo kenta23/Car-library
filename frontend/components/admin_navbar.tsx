@@ -1,9 +1,12 @@
+'use client';
+
 import React from 'react'
 import Image from 'next/image';
 import { Bell, UserRound } from 'lucide-react';
 
 
 export default function AdminNavbar() {
+
   return (
     <div className="w-full h-[70px]">
       <div className="w-full px-[2rem] py-4 border-b-[1px] border-white justify-between items-center flex">
@@ -15,7 +18,7 @@ export default function AdminNavbar() {
         />
 
         
-      <div className='flex justify-between items-center gap-3'>
+      <div className='flex items-center justify-between gap-3'>
             {/** notifications */}
             <Bell color='#E4C39C' size={25}/>
 

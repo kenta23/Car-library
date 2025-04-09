@@ -1,0 +1,1 @@
+export const cardStyle = "h-full px-4 py-3 rounded-lg bg-white/15 w-80 min-h-60 max-h-72";

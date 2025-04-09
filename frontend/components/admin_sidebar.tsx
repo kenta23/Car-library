@@ -5,7 +5,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { LogOut } from 'lucide-react';
 
-
+const  handleSignOut = async () => {
+    const res = await fetch('/api/admin/signout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (res.ok) {
+        window.location.href = '/admin/login';
+    } else {
+        console.error('Failed to sign out');
+    }
+}
 
 export default function AdminSidebar() {
     const pathname = usePathname();
@@ -22,14 +34,14 @@ export default function AdminSidebar() {
                <Link className={pathname === '/admin/customers' ? 'text-primaryColor' : ''} href='/admin/customers'>
                    <p>Customers</p>
                </Link>
-               <Link className={pathname === '/admin/analytics' ? 'text-primaryColor' : ''} href='/admin/dashboard'>
+               <Link className={pathname === '/admin/analytics' ? 'text-primaryColor' : ''} href='/admin/analytics'>
                    <p>Anaytics</p>
                </Link>
         </div>
 
 
         <div className='flex flex-row gap- items-center absolute bottom-3 w-full px-4 py-4 text-white'>
-             <button type='button' className='flex flex-row items-center gap-2'>
+             <button type='button' onClick={handleSignOut} className='flex flex-row items-center gap-2'>
                <LogOut color='#ffff' size={20}/>
                <p className=''>Sign out</p>
              </button>
