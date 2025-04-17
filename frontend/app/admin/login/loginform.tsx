@@ -1,16 +1,51 @@
 'use client';
 
 import { handleLogin } from '@/app/actions/admin';
-import React, { useActionState } from 'react'
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import React from 'react'
+
+
+interface AdminEntries {
+  username: string;
+  password: string;
+}
 
 export default function LoginForm() {
-    const [formState, formAction] = useActionState(handleLogin, {
-        success: false,
+    const router = useRouter();
+    const { mutate, isError, isSuccess, data } = useMutation({
+      mutationFn: async (data: AdminEntries) => await handleLogin(data),
+      onSuccess: (data) => {
+        console.log('Login successful', data);
+      },
+      onError: (error) => {
+        console.error('Login failed', error);
+      }
     });
     
+    console.log('results', data, isError, isSuccess);
+      
+  async function handleSubmit (e: React.FormEvent<HTMLFormElement>) { 
+     e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData);
+
+      console.log('FORMDATA', data);
+
+      mutate(
+        {
+          username: data.username as string,
+          password: data.password as string
+        }
+      );
+
+      if (isSuccess) { 
+         router.push('/admin/dashboard');
+      }
+  }
   return (
     <>
-      <form action={formAction} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col items-start gap-2">
           <label htmlFor="username">Username</label>
           <input
@@ -19,7 +54,7 @@ export default function LoginForm() {
             name="username"
             className="h-8 p-2 bg-transparent border border-white rounded-lg outline-none w-72"
           />
-         {formState.fields?.username && <p>{formState.fields.username}</p>}
+
         </div>
 
         <div className="flex flex-col items-start gap-2">
@@ -30,7 +65,7 @@ export default function LoginForm() {
             name="password"
             className="h-8 p-2 bg-transparent border border-white rounded-lg outline-none w-72"
           />
-            {formState.fields?.username && <p>{formState.fields.username}</p>}
+
         </div>
 
         <div>
@@ -41,7 +76,6 @@ export default function LoginForm() {
             <span>Login</span>
           </button>
         </div>
-        {formState.errors?.general && <p>{formState.errors.general}</p>}
       </form>
     </>
   );

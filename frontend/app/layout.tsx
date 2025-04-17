@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Georama } from 'next/font/google';
 import "./globals.css";
-import Provider from "./provider/Provider";
+import Provider from "./Provider";
 import { Toaster } from "@/components/ui/sonner";
 
 
@@ -25,7 +25,7 @@ export default function RootLayout({
       <body
         className={`${georama.className} antialiased bg-dark min-h-screen w-full`}
       >
-        <Provider>
+         <Provider>
            {children}
            <Toaster />
         </Provider>

@@ -3,18 +3,22 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Pest\Laravel\json;
+use App\Models\AdminModel;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Hash;
 use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Fortify\CreateNewAdmin;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use Illuminate\Support\Facades\RateLimiter;
+use Laravel\Fortify\Contracts\LoginResponse;
 use App\Actions\Fortify\UpdateUserProfileInformation;
-use App\Models\AdminModel;
+
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -24,6 +28,12 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->instance(LoginResponse::class, new class implements LoginResponse {
+            public function toResponse($request)
+            {
+                return response()->json(["message" => "Login successful"], 200);
+            }
+        });
     }
 
     /**
@@ -31,35 +41,24 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::authenticateUsing(function (Request $request) {
-            if ($request->is('admin/*') || $request->routeIs('admin.login')) {
-                $admin = AdminModel::where('email', $request->email)->first();
-                $password = $request->password;
+       Fortify::authenticateUsing(function (Request $request) {
+        $user = User::where('email', $request->email)->first();
 
-                if ($admin && Hash::check($password, $admin->password)) {
-                    return $admin;
-                }
-            }
-
-            $user = User::where('email', $request->email)->first();
-
-            if ($user &&
-                Hash::check($request->password, $user->password)) {
-                return $user;
-            }
-        });
+        if ($user &&
+            Hash::check($request->password, $user->password)) {
+            return $user;
+        }
+    });
 
 
         Fortify::verifyEmailView(function () {
             return view('auth.verify-email');
         });
 
-        Fortify::createUsersUsing(CreateNewUser::class);
-        Fortify::createUsersUsing(\App\Actions\Fortify\CreateNewAdmin::class); // Custom Admin Registration
-
-        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
-        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        Fortify::createUsersUsing(CreateNewUser::class); //create account
+        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class); //update user
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class); //update password
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class); //reset password
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());

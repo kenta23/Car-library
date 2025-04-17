@@ -9,62 +9,43 @@ type FormState = {
     errors?: Record<string, string[]>;
   };
 
-const APIEndpoint = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_API,
-});
+// const APIEndpoint = axios.create({
+//     baseURL: process.env.NEXT_PUBLIC_BACKEND_API,
+// });
 
+type adminEntries = { 
+    username: string;
+    password: string;
+}
 
-export async function handleLogin(prevState: FormState, formdata: FormData): Promise<FormState> { 
-    console.log('formdata',formdata);
-
-    const username = formdata.get('username')?.toString();
-    const password = formdata.get('password')?.toString();
-
-
-    if (!username || !password) {
-        return { 
-            success: false,
-            fields: {
-                username: 'Username is required',
-                password: 'Password is required'
-            },
-            errors: {
-                username: ['Username is required'],
-                password: ['Password is required']
-            }
-        }
+export async function handleLogin (data: adminEntries) { 
+  
+    if (!data.username || !data.password) {
+        console.log('Invalid username or password');
+        return;
     }
+
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+         withCredentials: true
+    });
 
     //fetch backend api for login 
     
-    const res = await axios.post(
-      process.env.NEXT_PUBLIC_BACKEND_API?.toString() + '/admin/login',
+    const res = await axios.post('http://localhost:8000/admin/login',
       {
-        username,
-        password,
+         username: data.username,
+         password: data.password,
       },
       {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        withCredentials: true,
       }
     );
 
     if (res.status !== 200) { 
-        return {
-            success: false,
-            fields: {
-                username: 'Invalid username or password',
-                password: 'Invalid username or password'
-            },
-            errors: {
-                username: ['Invalid username or password'],
-                password: ['Invalid username or password']
-            }
-        }
+        return;
     }  
     
-    if(res.status === 200) {
+    if (res.status === 200) {
         const data = res.data;
         console.log('data',data);
         if (data.success) {
@@ -72,8 +53,5 @@ export async function handleLogin(prevState: FormState, formdata: FormData): Pro
         } 
     }
 
-    return { 
-        success: false,
-        errors: { general: ['An unexpected error occurred'] }
-    };
+    return res.data;
 }

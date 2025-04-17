@@ -16,7 +16,9 @@ class CarController extends Controller
     {
         //
        $carData = Car::all();
-       return view('cars.index', ['cars' => $carData]);
+
+       //return data as json
+        return response()->json($carData, status: 200);
     }
 
     /**

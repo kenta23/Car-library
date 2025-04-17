@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
+import axios from 'axios';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 
 
@@ -16,6 +18,16 @@ const adminLoginSchema = z.object({
 type login = z.infer<typeof adminLoginSchema>
 
 export default function Login() {
+  const { data, isLoading,  } = useQuery({ 
+     queryKey: ['car'],
+     queryFn: () => fetch('/api/car').then((res) => res.json()),
+     onSuccess: (data: any) => console.log('car data', data),
+     onError: (error: any) => console.log('car data error', error),
+  })
+
+  console.log(data);
+
+  
   const { formState: { errors }, handleSubmit, setError, register,  } = useForm<login>({ 
      defaultValues: {
          email: '',
@@ -26,7 +38,7 @@ export default function Login() {
 
   const handleLogin: SubmitHandler<login> = async (data) => { 
        console.log(data);
-  }
+  };
   
 
   return (

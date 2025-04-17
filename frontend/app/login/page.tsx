@@ -3,10 +3,13 @@ import Link from 'next/link'
 import React from 'react'
 import z from 'zod';
 import Login from './client';
+import axios from 'axios';
 
 
 
-export default function page() {
+export default async function page() {
+      await axios.get('/api/car').then((res) => console.log('car data', res.data)).catch((err) => console.log(err));
+
   return (
     <div className='w-full h-full'>
         <div className="flex w-full">

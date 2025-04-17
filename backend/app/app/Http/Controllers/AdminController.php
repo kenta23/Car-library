@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminModel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreAdminModelRequest;
 use App\Http\Requests\UpdateAdminModelRequest;
+
 
 class AdminController extends Controller
 {
@@ -27,12 +30,29 @@ class AdminController extends Controller
         $admin = AdminModel::create();
     }
 
+    /**login */
+    public function login(Request $request)
+    {
+        //authenticate the admin
+
+        $credentials = $request->validate([
+            'username' => 'required|string|max:50',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if (Auth::guard('admin')->attempt($credentials))  {
+            // Authentication passed...
+            return response()->json('Successfully logged in', 200);
+        } else {
+            return response()->json('Invalid credentials', 401);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreAdminModelRequest $request)
     {
-        //
         //validate from requests
          AdminModel::create($request->all());
 
