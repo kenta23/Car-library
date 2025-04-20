@@ -2,25 +2,37 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
+import { handleSignOut } from '@/app/actions/admin';
+import { useMutation } from '@tanstack/react-query';
 
-const  handleSignOut = async () => {
-    const res = await fetch('/api/admin/signout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-    if (res.ok) {
-        window.location.href = '/admin/login';
-    } else {
-        console.error('Failed to sign out');
-    }
-}
+
 
 export default function AdminSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const {data, isSuccess, mutate } = useMutation({ 
+         mutationFn: handleSignOut,
+         onSuccess: (data) => { 
+            console.log('Sign out successful', data);
+         },
+    });
+
+    console.log(data);
+    console.log(isSuccess);
+
+
+    const signOut = async () => { 
+         mutate();
+
+         if (isSuccess) {
+            console.log('Sign out successful');
+           
+            router.refresh();
+         }
+    }
     
   return (
     <div className='border-r-[1px] relative border-r-white w-[16rem] h-full min-h-screen mt-1 bg-dark'>
@@ -40,8 +52,8 @@ export default function AdminSidebar() {
         </div>
 
 
-        <div className='flex flex-row gap- items-center absolute bottom-3 w-full px-4 py-4 text-white'>
-             <button type='button' onClick={handleSignOut} className='flex flex-row items-center gap-2'>
+        <div className='absolute flex flex-row items-center w-full px-4 py-4 text-white gap- bottom-3'>
+             <button type='button' onClick={signOut} className='flex flex-row items-center gap-2'>
                <LogOut color='#ffff' size={20}/>
                <p className=''>Sign out</p>
              </button>

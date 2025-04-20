@@ -2,7 +2,7 @@
 
 import { handleLogin } from '@/app/actions/admin';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import React from 'react'
 
 
@@ -38,11 +38,11 @@ export default function LoginForm() {
           password: data.password as string
         }
       );
-
-      if (isSuccess) { 
-         router.push('/admin/dashboard');
+      if (isSuccess) {
+        router.push('/admin/dashboard');
       }
   }
+  
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -12,6 +12,7 @@ import { addCars } from '@/app/actions/addcars';
 import { toast } from 'sonner';
 import { itemsType } from '@/lib/types';
 import { schema } from '@/lib/schema';
+import { createClient } from '@/utils/supabase/client';
 
 
 
@@ -19,18 +20,22 @@ const formSchema = schema.extend({
   colorInput: z.string(),
 });
 
-type extendItemsType = Omit<itemsType, 'id'> & {
-  colorInput: string;
-};
+export type formType = z.infer<typeof formSchema>;
+
+
+// type extendItemsType = Omit<itemsType, 'id'> & {
+//   colorInput: string;
+//   images: File[];
+// };
 
 export default function FormItems() {
     // const [colorOptions, setColorOptions] = useState<string>('');
-    const { register, handleSubmit, formState: { errors }, setValue, getValues, watch } = useForm<extendItemsType>({ 
+    const { register, handleSubmit, formState: { errors, isValid }, setValue, getValues, watch } = useForm<formType>({ 
        resolver: zodResolver(formSchema),
        defaultValues: { 
           carName: '',
           dailyRate: 0,
-          releaseDate: "",
+          releaseDate: new Date(),
           steeringType: "Manual",
           doors: 0,
           transmission: "Manual",
@@ -40,11 +45,16 @@ export default function FormItems() {
           features: '',
        }
     })
-    const [images, setImages] = useState<string[]>([]);
+
+    console.log('FORMDATA VALUES', getValues());
+    
+    const supabase = createClient();
+    const [images, setImages] = useState<File[]>([]);
     const inputImageRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
+
     const { mutate, error, isSuccess, data } = useMutation({
-      mutationFn: async (data: Omit<extendItemsType, "colorInput">) =>
+      mutationFn: async (data: formType) =>
         await addCars(data),
       onSuccess: () => {
         toast.success("Car added successfully");
@@ -58,29 +68,79 @@ export default function FormItems() {
     function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         const files = e.target.files;
         if (files) {
-          const urls = Array.from(files).map((file) =>
-            URL.createObjectURL(file)
-          );
-
-            setImages((prev) => [...prev, ...urls]);
-
-          if (images.length >= 3) {
-            setImages((prev) => [...prev.slice(0, 3 - urls.length), ...urls]);
-          }
+            const newFiles = Array.from(files);
+            
+            setImages((prev) => {
+                const updatedImages = [...prev, ...newFiles];
+                if (updatedImages.length > 3) {
+                    updatedImages.splice(-1, updatedImages.length - 3);
+                }
+                return updatedImages;
+            });
         }
     }
 
-    console.log('images', images);
+    console.log('images', getValues("images"));
 
+    const handleUploadImageToCloud = async (): Promise<boolean> => {
+      const sanitizeBucketName = (name: string) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
 
-    const onSubmit = async (data: Omit<extendItemsType, 'colorInput'>) => {
-       mutate(data);
-       console.log('request returned from laravel', data);
-    }
+      try {
+        const uploadPromises = images.map(async (image) =>
+          supabase.storage
+            .from("car")
+            .upload(`${sanitizeBucketName(getValues("carName"))}/${image.name}`, image, {
+              cacheControl: "3600",
+              upsert: true,
+            })
+            .then(async ({ data, error }) => {
+              if (error) {
+                throw new Error(`Upload failed for ${image.name}: ${error.message}`);
+              }
 
+              //download the url path and store to images state array
+              const { data: imageUrl} = supabase.storage.from("car").getPublicUrl(data.path);            
+
+              console.log("Image uploaded:", data);
+              return imageUrl.publicUrl; // collect successfully uploaded images and store to state as url
+            })
+        );
     
-    console.log(watch('colorInput'));
+        const uploadedImages = await Promise.all(uploadPromises);
+         // Store only successfully uploaded images
+         setValue("images", uploadedImages);
+         return true;
+       } catch (err) {
+        console.error("One or more image uploads failed:", err);
+        return false;
+      }
+    };
 
+    const onSubmit = async (formdata: formType) => {
+      try {
+        if(images.length === 0) {
+           return;
+        }
+        if (!errors.carName && !errors.dailyRate && !errors.releaseDate && !errors.steeringType && !errors.doors && !errors.transmission && !errors.ColorOptions && !errors.features && !errors.type) {
+          console.log('SUCCESSS', formdata);
+          const success = await handleUploadImageToCloud();
+
+          if (success) {
+            const updatedFormData = getValues();
+            
+            mutate(updatedFormData); // only mutate after successful uploads
+            console.log("Form submitted successfully");
+          } else {
+            console.warn("Image upload failed, not submitting form.");
+          }
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      }
+    
+       console.log("data request", formdata);
+    };
+  
 
     const handleAddColor = () => {
           const newColor = watch('colorInput').toString();    
@@ -109,6 +169,7 @@ export default function FormItems() {
              accept="image/png, image/jpeg"
              className="hidden"
              onChange={handleImageChange}
+             multiple
            />
            <Plus color="#ffff" size={20} />
          </div>
@@ -123,7 +184,7 @@ export default function FormItems() {
                <Image
                  quality={100}
                  fill
-                 src={image}
+                 src={image ? URL.createObjectURL(image) : ''}
                  alt={`car-${index}`}
                  className="object-cover w-full h-full rounded-2xl"
                />
@@ -140,14 +201,15 @@ export default function FormItems() {
                  </p>
                </div>
                <div>
-                 <span className="text-sm text-red-400">
-                   {errors.images?.message}
-                 </span>
                </div>
              </div>
            ))}
+            <span className="text-sm text-red-400">
+                   {errors.images?.message}
+               </span>
          </div>
        </div>
+      
 
        {/** Forms */}
        <div className="w-full h-auto mt-6">

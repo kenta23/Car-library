@@ -15,8 +15,7 @@ class CarController extends Controller
     public function index()
     {
         //
-       $carData = Car::all();
-
+        $carData = Car::all();
        //return data as json
         return response()->json($carData, status: 200);
     }
@@ -34,9 +33,20 @@ class CarController extends Controller
      */
     public function store(Request $request)
     {
-        //
-          //
           $car = new Car();
+          //validate request
+          $request->validate([
+                 'carName' => 'required|string|max:255',
+                 'images' => 'required|array|min:1',
+                 'dailyRate' => 'required|numeric|min:0',
+                 'releaseDate' => 'required|date_format:Y-m-d',
+                 'steeringType' => 'required|string|max:255',
+                 'doors' => 'required|integer|min:1|max:5',
+                 'transmission' => 'required|string|in:manual,automatic',
+                 'color' => 'nullable|array',
+                 'features' => 'string||min:8|max:255|nullable',
+                 'color_options' => 'required|array|min:1',
+         ]);
 
           $releaseDate = \Carbon\Carbon::createFromFormat('Y-m-d', $request->input('releaseDate'))->format('Y-m-d');
 
@@ -47,11 +57,12 @@ class CarController extends Controller
                'steering_type' => $request->input(key: 'steeringType'),
                'doors' => $request->input(key: 'doors'),
                'transmission' => $request->input('transmission'),
-               'color' => $request->input('color') ?? 'Unknown', // Default color
+               'color_options' => $request->input('ColorOptions') ?? 'Unknown', // Default color
                'features' => $request->input('features'),
+               'images' => $request->input('images'),
           ]);
 
-       return response()->json(['message' => 'Car added successfully', 'car' => $car], 201);
+        return response()->json(['message' => 'Car added successfully', 'car' => $car], 201);
     }
 
     /**

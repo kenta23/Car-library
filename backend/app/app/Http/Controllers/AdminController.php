@@ -33,8 +33,12 @@ class AdminController extends Controller
     /**login */
     public function login(Request $request)
     {
-        //authenticate the admin
+        //checking database connection
+        if(!AdminModel::first()) {
+            return response()->json('Database connection error', 500);
+        }
 
+        //authenticate the admin
         $credentials = $request->validate([
             'username' => 'required|string|max:50',
             'password' => 'required|string|min:8',
@@ -94,5 +98,15 @@ class AdminController extends Controller
     public function destroy(AdminModel $adminModel)
     {
         //
+    }
+
+    public function logout(Request $request)
+    {
+        //logout the admin
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        //return a valid json response
+        return response()->json('Successfully logged out', 200);
     }
 }

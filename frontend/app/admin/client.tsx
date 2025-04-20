@@ -11,7 +11,7 @@ export default function Client ({ children }:  { children: Readonly<React.ReactN
   return (
     <>
         {pathname !== '/admin/login' && <AdminNavbar /> }
- 
+        
        <div className='flex flex-row w-full text-white'>
             {/**Side bar */}
            {pathname !== '/admin/login' && <AdminSidebar />}

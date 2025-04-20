@@ -8,7 +8,7 @@ export type itemsType = {
      transmission: string;
      ColorOptions: string[];
      dailyRate: number;
-     releaseDate: string;
+     releaseDate: Date; //date
      features: string;
      type: string;
 } 
